@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universe V1</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Orbitron', sans-serif; background: #000; color: #fff; min-height: 100vh; }
+        .hidden { display: none !important; }
+        
+        /* Loading */
+        .loading-screen { position: fixed; inset: 0; background: #000; display: flex; align-items: center; justify-content: center; z-index: 9999; }
+        .loading-image { width: 16rem; height: 16rem; object-fit: cover; border-radius: 50%; margin-bottom: 1.5rem; animation: pulse 2s infinite; }
+        .loading-dots { display: flex; justify-content: center; gap: 0.5rem; }
+        .dot { width: 0.75rem; height: 0.75rem; background: #a855f7; border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both; }
+        .dot:nth-child(1) { animation-delay: -0.32s; }
+        .dot:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        
+        /* Login */
+        .login-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem 1rem; }
+        .login-container { max-width: 28rem; width: 100%; }
+        .login-banner { margin-bottom: 2rem; border-radius: 0.5rem; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(168, 85, 247, 0.5); transition: all 0.3s; }
+        .login-banner:hover { transform: scale(1.05); }
+        .login-banner img { width: 100%; aspect-ratio: 16/9; object-fit: cover; }
+        .login-card { background: #1a1a1a; border-radius: 0.5rem; padding: 1.5rem; border: 2px solid #a855f7; }
+        .login-title { font-size: 1.875rem; font-weight: bold; text-align: center; margin-bottom: 1.5rem; color: #a855f7; }
+        .form-group { margin-bottom: 1rem; }
+        .form-label { display: block; font-size: 0.875rem; margin-bottom: 0.5rem; color: #d1d5db; }
+        .form-input { width: 100%; background: #000; border: 2px solid #a855f7; border-radius: 0.25rem; padding: 0.75rem 1rem; color: #fff; font-family: 'Orbitron', sans-serif; transition: all 0.3s; }
+        .form-input:focus { outline: none; border-color: #c084fc; }
+        .btn-login { width: 100%; background: #7c3aed; border: none; color: #fff; font-weight: bold; font-family: 'Orbitron', sans-serif; padding: 0.75rem; border-radius: 0.25rem; cursor: pointer; transition: all 0.3s; box-shadow: 0 10px 25px -5px rgba(168, 85, 247, 0.5); }
+        .btn-login:hover { background: #6d28d9; transform: scale(1.05); }
+        .btn-login:active { transform: scale(0.95); }
+        .creator-text { text-align: center; color: #a855f7; font-size: 0.875rem; margin-top: 1rem; }
+        
+        /* Header */
+        .header { background: linear-gradient(to right, #1a1a1a, #000); border-bottom: 1px solid rgba(168, 85, 247, 0.3); padding: 1rem; display: flex; align-items: center; justify-content: space-between; }
+        .menu-btn, .profile-btn { background: rgba(31, 41, 55, 0.5); border: none; color: #a855f7; padding: 0.5rem; border-radius: 0.5rem; cursor: pointer; transition: all 0.3s; }
+        .menu-btn:hover, .profile-btn:hover { color: #c084fc; }
+        .logo { font-size: 1.25rem; font-weight: bold; background: linear-gradient(to right, #a855f7, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 0.1em; }
+        
+        /* Banner */
+        .banner { position: relative; margin: 1.5rem 0; border-radius: 1rem; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(168, 85, 247, 0.3); transition: all 0.3s; }
+        .banner:hover { box-shadow: 0 25px 50px -12px rgba(168, 85, 247, 0.5); transform: scale(1.01); }
+        .banner img { width: 100%; height: auto; display: block; aspect-ratio: 16/9; object-fit: cover; }
+        .banner-overlay { position: absolute; bottom: 0; left: 0; right: 0; padding: 2rem 1.5rem; background: linear-gradient(to top, #000, transparent); }
+        .banner-title { font-size: 1.5rem; font-weight: bold; margin-bottom: 0.25rem; }
+        .banner-subtitle { color: #c084fc; font-size: 0.875rem; }
+        
+        /* Social */
+        .social-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; margin-bottom: 1.5rem; }
+        .social-btn { background: rgba(17, 24, 39, 0.5); backdrop-filter: blur(10px); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 1rem; padding: 1rem; cursor: pointer; transition: all 0.3s; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; }
+        .social-btn:hover { background: rgba(31, 41, 55, 0.5); transform: scale(1.1); box-shadow: 0 10px 25px -5px rgba(168, 85, 247, 0.3); }
+        .social-btn:active { transform: scale(0.95); }
+        .social-icon { width: 3rem; height: 3rem; background: linear-gradient(to bottom right, #1f2937, #111827); border-radius: 1rem; display: flex; align-items: center; justify-content: center; transition: all 0.3s; }
+        .social-btn:hover .social-icon { background: linear-gradient(to bottom right, #7c3aed, #a855f7); }
+        .social-icon svg { width: 1.5rem; height: 1.5rem; fill: #a855f7; }
+        .social-name { color: #9ca3af; font-size: 0.75rem; font-weight: 500; }
+        
+        /* Telegram */
+        .telegram-card { background: linear-gradient(to right, rgba(17, 24, 39, 0.8), rgba(31, 41, 55, 0.8)); backdrop-filter: blur(10px); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 1rem; padding: 1rem; margin-bottom: 1.5rem; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: space-between; }
+        .telegram-card:hover { background: rgba(31, 41, 55, 0.8); transform: scale(1.02); box-shadow: 0 10px 25px -5px rgba(168, 85, 247, 0.3); }
+        .telegram-content { display: flex; align-items: center; gap: 1rem; }
+        .telegram-icon { width: 3rem; height: 3rem; background: linear-gradient(to bottom right, #7c3aed, #a855f7); border-radius: 1rem; display: flex; align-items: center; justify-content: center; transition: all 0.3s; }
+        .telegram-card:hover .telegram-icon { transform: scale(1.1); }
+        .telegram-icon svg { width: 1.5rem; height: 1.5rem; fill: #fff; }
+        .telegram-text h3 { font-size: 0.875rem; font-weight: bold; margin-bottom: 0.25rem; }
+        .telegram-text p { font-size: 0.75rem; color: #9ca3af; }
+        .arrow-icon { color: #a855f7; transition: all 0.3s; }
+        .telegram-card:hover .arrow-icon { transform: translateX(0.5rem); }
+        
+        /* Stats */
+        .stats-card { background: linear-gradient(to bottom right, rgba(17, 24, 39, 0.8), rgba(31, 41, 55, 0.8)); backdrop-filter: blur(10px); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 1rem; padding: 1.5rem; box-shadow: 0 25px 50px -12px rgba(168, 85, 247, 0.2); transition: all 0.3s; margin-bottom: 5rem; }
+        .stats-card:hover { box-shadow: 0 25px 50px -12px rgba(168, 85, 247, 0.4); }
+        .stats-header { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.25rem; }
+        .live-indicator { width: 0.5rem; height: 0.5rem; background: #10b981; border-radius: 50%; animation: pulse 2s infinite; }
+        .stats-title { font-size: 1.125rem; font-weight: bold; letter-spacing: 0.05em; }
+        .stats-grid { display: flex; flex-direction: column; gap: 1rem; }
+        .stat-item { background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(168, 85, 247, 0.2); border-radius: 0.5rem; padding: 1rem; display: flex; align-items: center; justify-content: space-between; transition: all 0.3s; }
+        .stat-item:hover { background: rgba(0, 0, 0, 0.4); border-color: rgba(168, 85, 247, 0.4); transform: scale(1.02); }
+        .stat-left { display: flex; align-items: center; gap: 0.75rem; }
+        .stat-icon { width: 2.5rem; height: 2.5rem; border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; transition: all 0.3s; }
+        .stat-item:hover .stat-icon { transform: scale(1.1); }
+        .stat-icon.blue { background: linear-gradient(to bottom right, #2563eb, #1e40af); }
+        .stat-icon.pink { background: linear-gradient(to bottom right, #db2777, #be185d); }
+        .stat-icon svg { width: 1.25rem; height: 1.25rem; stroke: #fff; fill: none; }
+        .stat-label { color: #9ca3af; font-size: 0.875rem; font-weight: 500; }
+        .stat-value { font-size: 1.5rem; font-weight: bold; }
+        
+        /* Bottom Nav */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, #000, rgba(17, 24, 39, 0.95)); backdrop-filter: blur(12px); border-top: 1px solid rgba(168, 85, 247, 0.3); padding: 1rem 1.5rem; }
+        .nav-container { max-width: 28rem; margin: 0 auto; display: flex; align-items: center; justify-content: space-around; }
+        .nav-btn { background: none; border: none; color: #9ca3af; cursor: pointer; transition: all 0.3s; display: flex; flex-direction: column; align-items: center; gap: 0.25rem; }
+        .nav-btn:hover { color: #a855f7; }
+        .nav-btn.active { color: #a855f7; }
+        .nav-btn svg { width: 1.5rem; height: 1.5rem; }
+        .nav-label { font-size: 0.75rem; font-weight: 500; }
+        
+        /* Modal */
+        .modal { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.9); z-index: 999; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+        .modal-content { background: linear-gradient(to bottom, #1a1a1a, #000); border: 1px solid rgba(168, 85, 247, 0.5); border-radius: 1rem; padding: 1.5rem; max-width: 28rem; width: 100%; max-height: 90vh; overflow-y: auto; }
+        .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+        .modal-title { font-size: 1.25rem; font-weight: bold; color: #a855f7; }
+        .close-btn { background: none; border: none; color: #a855f7; cursor: pointer; transition: all 0.3s; }
+        .close-btn:hover { color: #c084fc; }
+        .btn-primary { width: 100%; background: linear-gradient(to right, #7c3aed, #a855f7); border: none; color: #fff; font-weight: bold; font-family: 'Orbitron', sans-serif; padding: 0.75rem; border-radius: 0.75rem; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 0.5rem; box-shadow: 0 10px 25px -5px rgba(168, 85, 247, 0.3); margin-bottom: 0.5rem; }
+        .btn-primary:hover { background: linear-gradient(to right, #6d28d9, #7c3aed); }
+        .btn-secondary { width: 100%; background: rgba(55, 65, 81, 0.5); border: 1px solid rgba(168, 85, 247, 0.5); color: #a855f7; font-weight: bold; font-family: 'Orbitron', sans-serif; padding: 0.75rem; border-radius: 0.75rem; cursor: pointer; transition: all 0.3s; }
+        .btn-secondary:hover { background: rgba(75, 85, 99, 0.5); }
+        .success-badge { background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.5); border-radius: 0.5rem; padding: 0.75rem; text-align: center; margin-top: 1rem; }
+        .success-text { color: #10b981; font-size: 0.75rem; font-weight: bold; }
+        .info-text { font-size: 0.75rem; color: #9ca3af; margin-bottom: 1rem; }
+        .code-box { background: rgba(0, 0, 0, 0.5); border: 2px solid rgba(168, 85, 247, 0.5); border-radius: 0.75rem; padding: 1.5rem; text-align: center; margin-bottom: 1rem; }
+        .code-text { font-size: 2rem; font-weight: bold; color: #a855f7; letter-spacing: 0.2em; }
+        .warning-box { background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.5); border-radius: 0.75rem; padding: 0.75rem; margin-bottom: 1rem; }
+        .warning-text { font-size: 0.75rem; color: #fbbf24; }
+        .info-label { color: #a855f7; font-weight: bold; }
+        
+        /* Bug Panel */
+        .bug-panel { position: fixed; inset: 0; background: linear-gradient(to bottom, #1a1a1a, #000, #000); z-index: 1000; overflow-y: auto; }
+        .bug-panel-header { padding: 1rem; border-bottom: 1px solid rgba(168, 85, 247, 0.2); display: flex; align-items: center; }
+        .back-btn { background: none; border: none; color: #9ca3af; cursor: pointer; transition: all 0.3s; }
+        .back-btn:hover { color: #fff; }
+        .panel-title { flex: 1; text-align: center; font-size: 1.125rem; font-weight: bold; background: linear-gradient(to right, #a855f7, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .profile-card { background: linear-gradient(to bottom right, rgba(17, 24, 39, 0.8), rgba(31, 41, 55, 0.8)); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 1.5rem; padding: 1.25rem; margin-bottom: 1.5rem; }
+        .profile-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; text-align: center; }
+        .profile-item label { display: block; font-size: 0.75rem; color: #9ca3af; margin-bottom: 0.25rem; }
+        .profile-item .value { font-size: 0.875rem; font-weight: bold; }
+        .profile-item .value.owner { color: #a855f7; }
+        .status-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+        .status-item { display: flex; align-items: center; gap: 0.5rem; }
+        .status-dot { width: 0.5rem; height: 0.5rem; border-radius: 50%; }
+        .status-dot.red { background: #ef4444; }
+        .status-dot.blue { background: #3b82f6; animation: pulse 2s infinite; }
+        .status-dot.purple { background: #a855f7; }
+        .status-text { font-size: 0.75rem; font-weight: 500; }
+        .status-text.red { color: #f87171; }
+        .status-text.blue { color: #60a5fa; }
+        .status-text.purple { color: #c084fc; }
+        .executor-card { background: linear-gradient(to bottom right, rgba(17, 24, 39, 0.8), rgba(31, 41, 55, 0.8)); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 1.5rem; padding: 1.5rem; margin-bottom: 5rem; }
+        .executor-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.5rem; }
+        .executor-icon { width: 3rem; height: 3rem; background: linear-gradient(to bottom right, #7c3aed, #a855f7); border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; }
+        .executor-icon svg { width: 1.5rem; height: 1.5rem; stroke: #fff; }
+        .executor-title { font-size: 1.25rem; font-weight: bold; color: #fff; }
+        .bug-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; margin-bottom: 1.5rem; }
+        .bug-card { background: linear-gradient(to bottom right, rgba(31, 41, 55, 0.4), rgba(17, 24, 39, 0.4)); border: 2px solid rgba(107, 114, 128, 0.4); border-radius: 1rem; padding: 1.25rem; cursor: pointer; transition: all 0.3s; text-align: center; position: relative; }
+        .bug-card:hover { border-color: rgba(168, 85, 247, 0.5); box-shadow: 0 10px 25px -5px rgba(168, 85, 247, 0.2); }
+        .bug-card.selected { background: linear-gradient(to bottom right, rgba(109, 40, 217, 0.6), rgba(124, 58, 237, 0.6)); border-color: rgba(168, 85, 247, 0.6); }
+        .bug-icon-wrapper { width: 3.5rem; height: 3.5rem; margin: 0 auto 0.75rem; background: rgba(31, 41, 55, 0.5); border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; transition: all 0.3s; }
+        .bug-card.selected .bug-icon-wrapper { background: rgba(109, 40, 217, 0.3); }
+        .bug-card:hover .bug-icon-wrapper { transform: scale(1.1); }
+        .bug-icon-wrapper svg { width: 2rem; height: 2rem; stroke: #a855f7; }
+        .bug-name { font-size: 0.75rem; font-weight: bold; color: #fff; margin-bottom: 0.375rem; letter-spacing: 0.05em; }
+        .bug-desc { font-size: 0.5625rem; color: #9ca3af; line-height: 1.2; }
+        .pulse-indicator { position: absolute; top: 0.75rem; right: 0.75rem; width: 0.75rem; height: 0.75rem; background: #a855f7; border-radius: 50%; animation: pulse 2s infinite; }
+        .form-input-panel { width: 100%; background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 0.75rem; padding: 0.875rem 1rem; color: #fff; font-family: 'Orbitron', sans-serif; transition: all 0.3s; }
+        .form-input-panel:focus { outline: none; border-color: rgba(168, 85, 247, 0.5); }
+        .form-input-panel::placeholder { color: #6b7280; }
+        .form-label-panel { display: block; font-size: 0.875rem; color: #9ca3af; text-transform: uppercase; font-weight: 500; letter-spacing: 0.05em; margin-bottom: 0.75rem; }
+        .sidebar { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.9); z-index: 999; }
+        .sidebar-content { width: 18rem; height: 100%; background: linear-gradient(to bottom, #1a1a1a, #000); border-right: 1px solid rgba(168, 85, 247, 0.3); }
+        .sidebar-header { padding: 1rem; border-bottom: 1px solid rgba(168, 85, 247, 0.3); display: flex; align-items: center; justify-content: space-between; }
+        .sidebar-title { font-size: 1.25rem; font-weight: bold; color: #a855f7; }
+        .sidebar-body { padding: 1rem; }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-content">
+            <img src="https://files.catbox.moe/sg49me.png" alt="Universe" class="loading-image">
+            <div class="loading-dots">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Screen -->
+    <div class="login-screen hidden" id="loginScreen">
+        <div class="login-container">
+            <div class="login-banner">
+                <img src="https://i.ibb.co/twLr3Lyy/banner.gif" alt="Banner" onerror="this.src='https://files.catbox.moe/lsiiag.png'">
+            </div>
+            <div class="login-card">
+                <h2 class="login-title">LOGIN</h2>
+                <div class="form-group">
+                    <label class="form-label">Username</label>
+                    <input type="text" id="username" class="form-input" placeholder="Masukkan username">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" id="password" class="form-input" placeholder="Masukkan password">
+                </div>
+                <button class="btn-login" onclick="handleLogin()">MASUK</button>
+                <p class="creator-text">@AzaMurBug</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div id="mainContent" class="hidden">
+        <header class="header">
+            <button class="menu-btn" onclick="showMenu()">
+                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+            </button>
+            <h1 class="logo">UNIVERSE</h1>
+            <button class="profile-btn" onclick="showProfile()">
+                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                </svg>
+            </button>
+        </header>
+
+        <div class="container" style="padding-bottom: 5rem;">
+            <div class="banner">
+                <img src="https://i.ibb.co/twLr3Lyy/banner.gif" alt="Universe V1 Banner" onerror="this.src='https://files.catbox.moe/07asqg.gif'">
+                <div class="banner-overlay">
+                    <h2 class="banner-title">UNIVERSE V1</h2>
+                    <p class="banner-subtitle">New Version & New Future</p>
+                </div>
+            </div>
+
+            <div class="social-grid">
+                <button class="social-btn" onclick="alert('🎵 TikTok belum tersedia!')">
+                    <div class="social-icon">
+                        <svg viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/></svg>
+                    </div>
+                    <span class="social-name">TikTok</span>
+                </button>
+
+                <button class="social-btn" onclick="window.open('https://wa.me/6285752202134', '_blank')">
+                    <div class="social-icon">
+                        <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+                    </div>
+                    <span class="social-name">WhatsApp</span>
+                </button>
+
+                <button class="social-btn" onclick="alert('📺 YouTube belum tersedia!')">
+                    <div class="social-icon">
+                        <svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                    </div>
+                    <span class="social-name">YouTube</span>
+                </button>
+
+                <button class="social-btn" onclick="showAddSender()">
+                    <div class="social-icon">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    </div>
+                    <span class="social-name">Sender</span>
+                </button>
+            </div>
+
+            <div class="telegram-card" onclick="alert('📱 Telegram belum tersedia!')">
+                <div class="telegram-content">
+                    <div class="telegram-icon">
+                        <svg viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+                    </div>
+                    <div class="telegram-text">
+                        <h3>Join Telegram</h3>
+                        <p>Get latest updates & scripts</p>
+                    </div>
+                </div>
+                <div class="arrow-icon">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </div>
+            </div>
+
+            <div class="stats-card">
+                <div class="stats-header">
+                    <div class="live-indicator"></div>
+                    <h3 class="stats-title">LIVE STATISTICS</h3>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-left">
+                            <div class="stat-icon blue">
+                                <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                            </div>
+                            <p class="stat-label">Online Users</p>
+                        </div>
+                        <p class="stat-value" id="onlineUsers">0</p>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-left">
+                            <div class="stat-icon pink">
+                                <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                            </div>
+                            <p class="stat-label">Requests</p>
+                        </div>
+                        <p class="stat-value" id="totalRequests">0</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <nav class="bottom-nav">
+            <div class="nav-container">
+                <button class="nav-btn active">
+                    <svg fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                    <span class="nav-label">Home</span>
+                </button>
+                <button class="nav-btn" onclick="showBugPanel()">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    <span class="nav-label">Console</span>
+                </button>
+                <button class="nav-btn" onclick="alert('Tools - Coming Soon!')">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    <span class="nav-label">Tools</span>
+                </button>
+                <button class="nav-btn" onclick="showProfile()">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <span class="nav-label">Info</span>
+                </button>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Sidebar Menu -->
+    <div id="sidebarMenu" class="sidebar hidden">
+        <div class="sidebar-content">
+            <div class="sidebar-header">
+                <h2 class="sidebar-title">MENU</h2>
+                <button class="close-btn" onclick="closeMenu()">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="sidebar-body">
+                <button class="btn-primary" onclick="showBugPanel(); closeMenu();">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
+                    PANEL BUG
+                </button>
+                <button class="btn-secondary" onclick="showAddSender(); closeMenu();">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    ADD SENDER
+                </button>
+                <div id="senderStatus" class="success-badge hidden">
+                    <p class="success-text">✓ Sender Terhubung</p>
+                </div>
+            </div>
+        </div>
+        <div style="flex: 1;" onclick="closeMenu()"></div>
+    </div>
+
+    <!-- Add Sender Modal -->
+    <div id="addSenderModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">ADD SENDER</h3>
+                <button class="close-btn" onclick="closeAddSender()">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <p class="info-text">Tambahkan nomor WhatsApp untuk mengirim bug secara otomatis tanpa membuka aplikasi WhatsApp.</p>
+            <div class="form-group">
+                <label class="form-label">Nomor WhatsApp Sender</label>
+                <input type="text" id="senderNumber" class="form-input" placeholder="62xxxx">
+            </div>
+            <button class="btn-primary" onclick="addSender()">TAMBAH SENDER</button>
+        </div>
+    </div>
+
+    <!-- Connection Code Modal -->
+    <div id="connectionCodeModal" class="modal hidden">
+        <div class="modal-content">
+            <h3 class="modal-title" style="text-align: center; margin-bottom: 1.5rem;">KODE KONEKSI</h3>
+            <p class="info-text" style="text-align: center;">Gunakan kode ini untuk menghubungkan akun WhatsApp Anda:</p>
+            <div class="code-box">
+                <p class="code-text" id="connectionCode"></p>
+            </div>
+            <div class="warning-box">
+                <p class="warning-text">⚠️ Simpan kode ini dengan aman. Kode ini diperlukan untuk menghubungkan sender ke sistem Universe.</p>
+            </div>
+            <div class="info-text">
+                <p style="margin-bottom: 0.5rem;">📱 Nomor Sender: <span class="info-label" id="displaySenderNumber"></span></p>
+                <p>🔐 Kode akan diverifikasi otomatis setelah Anda klik tombol di bawah</p>
+            </div>
+            <button class="btn-primary" onclick="verifyConnection()">VERIFIKASI & HUBUNGKAN</button>
+            <button class="btn-secondary" onclick="closeConnectionCode()">BATAL</button>
+        </div>
+    </div>
+
+    <!-- Bug Panel Full Screen -->
+    <div id="bugPanel" class="bug-panel hidden">
+        <div class="bug-panel-header">
+            <button class="back-btn" onclick="closeBugPanel()">
+                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+            </button>
+            <h1 class="panel-title">UNIVERSE V1</h1>
+            <div style="width: 24px;"></div>
+        </div>
+
+        <div class="container" style="padding-top: 1.5rem; padding-bottom: 5rem;">
+            <div class="profile-card">
+                <div class="profile-grid">
+                    <div class="profile-item">
+                        <label>Username</label>
+                        <p class="value">aza</p>
+                    </div>
+                    <div class="profile-item">
+                        <label>Role</label>
+                        <p class="value owner">OWNER</p>
+                    </div>
+                    <div class="profile-item">
+                        <label>Expired</label>
+                        <p class="value">UNLIMITED</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="status-bar">
+                <div class="status-item">
+                    <div class="status-dot red"></div>
+                    <span class="status-text red">No Senders</span>
+                </div>
+                <div class="status-item">
+                    <div class="status-dot blue"></div>
+                    <span class="status-text blue" id="currentTime"></span>
+                </div>
+                <div class="status-item">
+                    <div class="status-dot purple"></div>
+                    <span class="status-text purple">0 Senders</span>
+                </div>
+            </div>
+
+            <div class="executor-card">
+                <div class="executor-header">
+                    <div class="executor-icon">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    </div>
+                    <h3 class="executor-title">Bug Executor</h3>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label-panel">Target Number</label>
+                    <input type="text" id="targetNumber" class="form-input-panel" placeholder="628xxxxxxxxxx">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label-panel">Select Payload</label>
+                    <div class="bug-grid">
+                        <div class="bug-card" onclick="selectBug('BUG DELAY')" id="bug-delay">
+                            <div class="bug-icon-wrapper">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            </div>
+                            <p class="bug-name">BUG DELAY</p>
+                            <p class="bug-desc">Slowdown traffic packets</p>
+                        </div>
+
+                        <div class="bug-card" onclick="selectBug('BUG BLANK')" id="bug-blank">
+                            <div class="bug-icon-wrapper">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                            </div>
+                            <p class="bug-name">BUG BLANK</p>
+                            <p class="bug-desc">Universal UI freeze</p>
+                        </div>
+
+                        <div class="bug-card" onclick="selectBug('BUG FORCLOSE')" id="bug-forclose">
+                            <div class="bug-icon-wrapper">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                            </div>
+                            <p class="bug-name">BUG FORCLOSE</p>
+                            <p class="bug-desc">Force close app</p>
+                        </div>
+
+                        <div class="bug-card" onclick="selectBug('IOS BLANK')" id="bug-ios">
+                            <div class="bug-icon-wrapper">
+                                <svg fill="currentColor" viewBox="0 0 24 24"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+                            </div>
+                            <p class="bug-name">IOS BLANK</p>
+                            <p class="bug-desc">iOS UI freeze</p>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn-primary" onclick="executeBug()">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    EXECUTE BUG
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedBugType = '';
+        let senderConnected = false;
+        let senderPhone = '';
+        let onlineUsers = 1;
+        let totalRequests = 0;
+
+        // Loading
+        setTimeout(() => {
+            document.getElementById('loadingScreen').classList.add('hidden');
+            document.getElementById('loginScreen').classList.remove('hidden');
+        }, 3000);
+
+        // Login
+        function handleLogin() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            if (username === 'aza' && password === 'aza') {
+                document.getElementById('loginScreen').classList.add('hidden');
+                document.getElementById('mainContent').classList.remove('hidden');
+                startStats();
+                updateTime();
+            } else {
+                alert('❌ Username atau Password salah!');
+            }
+        }
+
+        // Stats
+        function startStats() {
+            setTimeout(() => {
+                onlineUsers = Math.floor(Math.random() * 20) + 15;
+                updateStats();
+            }, 2000);
+            setInterval(() => {
+                const change = Math.floor(Math.random() * 7) - 3;
+                onlineUsers = Math.max(10, Math.min(100, onlineUsers + change));
+                updateStats();
+            }, 8000);
+            setInterval(() => {
+                totalRequests += Math.floor(Math.random() * 3) + 1;
+                updateStats();
+            }, 3000);
+        }
+
+        function updateStats() {
+            document.getElementById('onlineUsers').textContent = onlineUsers;
+            document.getElementById('totalRequests').textContent = totalRequests;
+        }
+
+        function updateTime() {
+            setInterval(() => {
+                const now = new Date();
+                const time = now.toLocaleTimeString('id-ID', {hour: '2-digit', minute: '2-digit', second: '2-digit'});
+                const timeEl = document.getElementById('currentTime');
+                if (timeEl) timeEl.textContent = time;
+            }, 1000);
+        }
+
+        // Menu
+        function showMenu() {
+            document.getElementById('sidebarMenu').classList.remove('hidden');
+        }
+
+        function closeMenu() {
+            document.getElementById('sidebarMenu').classList.add('hidden');
+        }
+
+        function showProfile() {
+            alert('STATUS AKUN\n\nUsername: aza\nRole: OWNER\nWaktu Expired: UNLIMITED\n\nCreated by @AzaMurBug');
+        }
+
+        // Bug Panel
+        function showBugPanel() {
+            document.getElementById('bugPanel').classList.remove('hidden');
+        }
+
+        function closeBugPanel() {
+            document.getElementById('bugPanel').classList.add('hidden');
+            selectedBugType = '';
+            document.getElementById('targetNumber').value = '';
+            document.querySelectorAll('.bug-card').forEach(card => {
+                card.classList.remove('selected');
+                const indicator = card.querySelector('.pulse-indicator');
+                if (indicator) indicator.remove();
+            });
+        }
+
+        function selectBug(bugName) {
+            selectedBugType = bugName;
+            document.querySelectorAll('.bug-card').forEach(card => {
+                card.classList.remove('selected');
+                const indicator = card.querySelector('.pulse-indicator');
+                if (indicator) indicator.remove();
+            });
+            const id = 'bug-' + bugName.toLowerCase().replace(' ', '-');
+            const selectedCard = document.getElementById(id);
+            if (selectedCard) {
+                selectedCard.classList.add('selected');
+                const indicator = document.createElement('div');
+                indicator.className = 'pulse-indicator';
+                selectedCard.appendChild(indicator);
+            }
+        }
+
+        function executeBug() {
+            const targetNumber = document.getElementById('targetNumber').value;
+            if (!targetNumber) {
+                alert('❌ Masukkan nomor target terlebih dahulu!');
+                return;
+            }
+            if (!selectedBugType) {
+                alert('❌ Pilih bug terlebih dahulu!');
+                return;
+            }
+            totalRequests++;
+            updateStats();
+            if (senderConnected) {
+                alert('🚀 Bug berhasil dikirim otomatis melalui sender!\n\nPesan "UNIVERSE PROJECT BUG" telah dikirim ke ' + targetNumber);
+            } else {
+                alert('🚀 Bug berhasil dikirim! Mengalihkan ke WhatsApp...');
+                window.open('https://wa.me/' + targetNumber + '?text=UNIVERSE%20PROJECT%20BUG', '_blank');
+            }
+            closeBugPanel();
+        }
+
+        // Sender
+        function showAddSender() {
+            document.getElementById('addSenderModal').classList.remove('hidden');
+        }
+
+        function closeAddSender() {
+            document.getElementById('addSenderModal').classList.add('hidden');
+            document.getElementById('senderNumber').value = '';
+        }
+
+        function addSender() {
+            const senderNumber = document.getElementById('senderNumber').value;
+            if (!senderNumber) {
+                alert('❌ Masukkan nomor WhatsApp sender!');
+                return;
+            }
+            if (!senderNumber.startsWith('62')) {
+                alert('❌ Nomor harus diawali dengan 62!');
+                return;
+            }
+            senderPhone = senderNumber;
+            const code = 'UV-' + Math.random().toString(36).substring(2, 10).toUpperCase();
+            document.getElementById('connectionCode').textContent = code;
+            document.getElementById('displaySenderNumber').textContent = senderNumber;
+            closeAddSender();
+            document.getElementById('connectionCodeModal').classList.remove('hidden');
+        }
+
+        function closeConnectionCode() {
+            document.getElementById('connectionCodeModal').classList.add('hidden');
+            senderPhone = '';
+        }
+
+        function verifyConnection() {
+            senderConnected = true;
+            alert('✅ Sender berhasil terhubung!\n\nNomor: ' + senderPhone + '\nSekarang bug akan dikirim otomatis tanpa membuka WhatsApp.');
+            document.getElementById('connectionCodeModal').classList.add('hidden');
+            document.getElementById('senderStatus').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694
