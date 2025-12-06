@@ -214,9 +214,7 @@
 <body>
     <!-- Loading Screen -->
     <div class="loading-screen" id="loadingScreen">
-        <video class="loading-video" autoplay muted playsinline id="loadingVideo">
-            <source src="https://files.catbox.moe/bp278a.mp4" type="video/mp4">
-        </video>
+        <img src="https://files.catbox.moe/su0f8g.gif" alt="Loading" class="loading-gif">
     </div>
 
     <!-- Login Screen -->
@@ -534,33 +532,29 @@
         let totalRequests = 0;
 
         // Check if already logged in
-        const isLoggedIn = localStorage.getItem('universeLoggedIn');
-        
-        if (isLoggedIn === 'true') {
-            // Skip loading and login, go straight to main content
-            document.getElementById('loadingScreen').classList.add('hidden');
-            document.getElementById('loginScreen').classList.add('hidden');
-            document.getElementById('mainContent').classList.remove('hidden');
-            startStats();
-            updateTime();
-        } else {
-            // Play loading video
-            const loadingVideo = document.getElementById('loadingVideo');
-            loadingVideo.addEventListener('ended', function() {
+        window.addEventListener('DOMContentLoaded', function() {
+            const isLoggedIn = localStorage.getItem('universeLoggedIn');
+            
+            // GIF loading duration (estimasi 3-4 detik untuk GIF selesai 1 loop)
+            setTimeout(() => {
                 document.getElementById('loadingScreen').classList.add('hidden');
-                document.getElementById('loginScreen').classList.remove('hidden');
-            });
-        }
+                
+                if (isLoggedIn === 'true') {
+                    document.getElementById('mainContent').classList.remove('hidden');
+                    startStats();
+                    updateTime();
+                } else {
+                    document.getElementById('loginScreen').classList.remove('hidden');
+                }
+            }, 3500); // 3.5 detik untuk GIF selesai
+        });
 
         // Login
         function handleLogin() {
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
             if (username === 'aza' && password === 'aza') {
-                // Save login state
                 localStorage.setItem('universeLoggedIn', 'true');
-                localStorage.setItem('universeUsername', username);
-                
                 document.getElementById('loginScreen').classList.add('hidden');
                 document.getElementById('mainContent').classList.remove('hidden');
                 startStats();
@@ -568,13 +562,6 @@
             } else {
                 alert('❌ Username atau Password salah!');
             }
-        }
-
-        // Logout function (optional - bisa dipanggil dari profile)
-        function handleLogout() {
-            localStorage.removeItem('universeLoggedIn');
-            localStorage.removeItem('universeUsername');
-            window.location.reload();
         }
 
         // Stats
@@ -618,11 +605,7 @@
         }
 
         function showProfile() {
-            const username = localStorage.getItem('universeUsername') || 'aza';
-            const confirmLogout = confirm('STATUS AKUN\n\nUsername: ' + username + '\nRole: OWNER\nWaktu Expired: UNLIMITED\n\nCreated by @AzaMurBug\n\nTekan OK untuk Logout');
-            if (confirmLogout) {
-                handleLogout();
-            }
+            alert('STATUS AKUN\n\nUsername: aza\nRole: OWNER\nWaktu Expired: UNLIMITED\n\nCreated by @AzaMurBug');
         }
 
         // Bug Panel
