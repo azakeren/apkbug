@@ -1,4 +1,47 @@
-<!DOCTYPE html>
+        .form-group { 
+            margin-bottom: 1rem; 
+        }
+        .form-label { 
+            display: block; 
+            font-size: 0.875rem; 
+            margin-bottom: 0.5rem; 
+            color: #d1d5db; 
+        }
+        .form-input { 
+            width: 100%; 
+            background: #000; 
+            border: 2px solid #a855f7; 
+            border-radius: 0.25rem; 
+            padding: 0.75rem 1rem; 
+            color: #fff; 
+            font-family: 'Orbitron', sans-serif; 
+            transition: all 0.3s; 
+        }
+        .form-input:focus { 
+            outline: none; 
+            border-color: #c084fc; 
+        }
+        .btn-login { 
+            width: 100%; 
+            background: #7c3aed; 
+            border: none; 
+            color: #fff; 
+            font-weight: bold; 
+            font-family: 'Orbitron', sans-serif; 
+            padding: 0.75rem; 
+            border-radius: 0.25rem; 
+            cursor: pointer; 
+            transition: all 0.3s; 
+            box-shadow: 0 10px 25px -5px rgba(168, 85, 247, 0.5); 
+        }
+        .btn-login:hover { 
+            background: #6d28d9; 
+            box-shadow: 0 10px 25px -5px rgba(168, 85, 247, 0.8); 
+            transform: scale(1.05); 
+        }
+        .btn-login:active { 
+            transform: scale(0.95); 
+        }<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
@@ -171,21 +214,16 @@
 <body>
     <!-- Loading Screen -->
     <div class="loading-screen" id="loadingScreen">
-        <div class="loading-content">
-            <img src="https://files.catbox.moe/sg49me.png" alt="Universe" class="loading-image">
-            <div class="loading-dots">
-                <div class="dot"></div>
-                <div class="dot"></div>
-                <div class="dot"></div>
-            </div>
-        </div>
+        <video class="loading-video" autoplay muted playsinline id="loadingVideo">
+            <source src="https://files.catbox.moe/bp278a.mp4" type="video/mp4">
+        </video>
     </div>
 
     <!-- Login Screen -->
     <div class="login-screen hidden" id="loginScreen">
         <div class="login-container">
             <div class="login-banner">
-                <img src="https://i.ibb.co/twLr3Lyy/banner.gif" alt="Banner" onerror="this.src='https://files.catbox.moe/lsiiag.png'">
+                <img src="https://files.catbox.moe/07asqg.gif" alt="Banner" onerror="this.src='https://files.catbox.moe/lsiiag.png'">
             </div>
             <div class="login-card">
                 <h2 class="login-title">LOGIN</h2>
@@ -221,7 +259,7 @@
 
         <div class="container" style="padding-bottom: 5rem;">
             <div class="banner">
-                <img src="https://i.ibb.co/twLr3Lyy/banner.gif" alt="Universe V1 Banner" onerror="this.src='https://files.catbox.moe/07asqg.gif'">
+                <img src="https://files.catbox.moe/07asqg.gif" alt="Universe V1 Banner" onerror="this.src='https://files.catbox.moe/lsiiag.png'">
                 <div class="banner-overlay">
                     <h2 class="banner-title">UNIVERSE V1</h2>
                     <p class="banner-subtitle">New Version & New Future</p>
@@ -495,17 +533,34 @@
         let onlineUsers = 1;
         let totalRequests = 0;
 
-        // Loading
-        setTimeout(() => {
+        // Check if already logged in
+        const isLoggedIn = localStorage.getItem('universeLoggedIn');
+        
+        if (isLoggedIn === 'true') {
+            // Skip loading and login, go straight to main content
             document.getElementById('loadingScreen').classList.add('hidden');
-            document.getElementById('loginScreen').classList.remove('hidden');
-        }, 3000);
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('mainContent').classList.remove('hidden');
+            startStats();
+            updateTime();
+        } else {
+            // Play loading video
+            const loadingVideo = document.getElementById('loadingVideo');
+            loadingVideo.addEventListener('ended', function() {
+                document.getElementById('loadingScreen').classList.add('hidden');
+                document.getElementById('loginScreen').classList.remove('hidden');
+            });
+        }
 
         // Login
         function handleLogin() {
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
             if (username === 'aza' && password === 'aza') {
+                // Save login state
+                localStorage.setItem('universeLoggedIn', 'true');
+                localStorage.setItem('universeUsername', username);
+                
                 document.getElementById('loginScreen').classList.add('hidden');
                 document.getElementById('mainContent').classList.remove('hidden');
                 startStats();
@@ -513,6 +568,13 @@
             } else {
                 alert('❌ Username atau Password salah!');
             }
+        }
+
+        // Logout function (optional - bisa dipanggil dari profile)
+        function handleLogout() {
+            localStorage.removeItem('universeLoggedIn');
+            localStorage.removeItem('universeUsername');
+            window.location.reload();
         }
 
         // Stats
@@ -556,7 +618,11 @@
         }
 
         function showProfile() {
-            alert('STATUS AKUN\n\nUsername: aza\nRole: OWNER\nWaktu Expired: UNLIMITED\n\nCreated by @AzaMurBug');
+            const username = localStorage.getItem('universeUsername') || 'aza';
+            const confirmLogout = confirm('STATUS AKUN\n\nUsername: ' + username + '\nRole: OWNER\nWaktu Expired: UNLIMITED\n\nCreated by @AzaMurBug\n\nTekan OK untuk Logout');
+            if (confirmLogout) {
+                handleLogout();
+            }
         }
 
         // Bug Panel
