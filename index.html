@@ -214,7 +214,14 @@
 <body>
     <!-- Loading Screen -->
     <div class="loading-screen" id="loadingScreen">
-        <img src="https://files.catbox.moe/su0f8g.gif" alt="Loading" class="loading-gif">
+        <div class="loading-content">
+            <img src="https://files.catbox.moe/sg49me.png" alt="Universe" class="loading-image">
+            <div class="loading-dots">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+        </div>
     </div>
 
     <!-- Login Screen -->
@@ -531,30 +538,17 @@
         let onlineUsers = 1;
         let totalRequests = 0;
 
-        // Check if already logged in
-        window.addEventListener('DOMContentLoaded', function() {
-            const isLoggedIn = localStorage.getItem('universeLoggedIn');
-            
-            // GIF loading duration (estimasi 3-4 detik untuk GIF selesai 1 loop)
-            setTimeout(() => {
-                document.getElementById('loadingScreen').classList.add('hidden');
-                
-                if (isLoggedIn === 'true') {
-                    document.getElementById('mainContent').classList.remove('hidden');
-                    startStats();
-                    updateTime();
-                } else {
-                    document.getElementById('loginScreen').classList.remove('hidden');
-                }
-            }, 3500); // 3.5 detik untuk GIF selesai
-        });
+        // Loading
+        setTimeout(() => {
+            document.getElementById('loadingScreen').classList.add('hidden');
+            document.getElementById('loginScreen').classList.remove('hidden');
+        }, 3000);
 
         // Login
         function handleLogin() {
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
             if (username === 'aza' && password === 'aza') {
-                localStorage.setItem('universeLoggedIn', 'true');
                 document.getElementById('loginScreen').classList.add('hidden');
                 document.getElementById('mainContent').classList.remove('hidden');
                 startStats();
